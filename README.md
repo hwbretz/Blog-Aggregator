@@ -2,6 +2,7 @@ Blog Aggregator
 
 - This is a command line tool for Linux (or WSL, osx, etc.) written in TypeScript for scraping RSS feeds. It stores feed data and user info on a postgreSQL database. 
 - Makes use of nodeJS, XMLParser from fast xml parser, and Drizzle ORM for database interaction.
+- need to setup a postgreSQL database called gator
 - make a .gatorconfig.json file in your home (~) directory with  {"db_url":"postgres://postgres:postgres@localhost:5432/gator?sslmode=disable"}
 - boot with npm run start [command [options]],  make sure to register a user first
 - Commands:
