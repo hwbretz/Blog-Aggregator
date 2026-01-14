@@ -10,6 +10,7 @@ export async function agg(cmdName: string, ...args: string[]) {
     }
 
     const duration = parseDuration(time_between_reqs);
+    console.log("Parsed duration (ms):", duration);
     console.log(`Collecting feeds every ${time_between_reqs}`);
     scrapeFeeds().catch(handleError);
 
@@ -35,10 +36,12 @@ export async function agg(cmdName: string, ...args: string[]) {
 function parseDuration(durationStr: string) {
     const regex = /^(\d+)(ms|s|m|h)$/;
     const match = durationStr.match(regex);
-    let digit = parseInt(durationStr[0]);
+
+    let digit = 10000;
     //convert to milliseconds
     if(match){
-        switch (match[0]){
+        digit = parseInt(match[1]);
+        switch (match[2]){
         case 'ms':
             break;
         case 's' :

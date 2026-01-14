@@ -42,7 +42,7 @@ export async function registerCommand(registry: CommandsRegistry, cmdName: strin
 export async function runCommand(registry: CommandsRegistry, cmdName: string, ...args: string[]) {
 
     try{
-        
+       
        await registry[cmdName](cmdName, ...args);
         
     } catch (error){

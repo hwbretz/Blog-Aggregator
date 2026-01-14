@@ -10,6 +10,8 @@ import { feeds } from "./command_feeds";
 import { follow, listFeedFollows, unfollow } from "./command_follow";
 import { getUser } from "./lib/db/queries/users";
 import { browse } from "./command_browse";
+import { postsTUI } from "./postsTUI";
+import { tui } from "./command_tui";
 
 async function main(){
 	if(!process.argv[2]){
@@ -30,11 +32,18 @@ async function main(){
 	await registerCommand(registry, "following", middlewareLoggedIn(listFeedFollows));
 	await registerCommand(registry, "unfollow", middlewareLoggedIn(unfollow));
 	await registerCommand(registry, "browse", middlewareLoggedIn(browse));
+	await registerCommand(registry, "tui", middlewareLoggedIn(tui));
+	
 
 	const cmdName = process.argv[2].toLowerCase();
 	const args = process.argv.slice(3);
-	await runCommand(registry, cmdName, ...args);
-	process.exit(0);
+	if(cmdName === 'tui'){
+		await runCommand(registry, cmdName, ...args);
+	} else {
+		await runCommand(registry, cmdName, ...args);
+		process.exit(0);
+	}
+	
 }
 
 main();

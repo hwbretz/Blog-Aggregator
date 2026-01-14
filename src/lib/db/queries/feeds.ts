@@ -24,6 +24,7 @@ export async function getFeeds() {
     return result;
 };
 
+
 export async function getFeed(url: string){
     const [feed] = await db.select().from(feeds).where(eq(feeds.url, url));
     return feed;
@@ -78,29 +79,31 @@ export async function getFeedFollowsByUser(user_id: string) {
 
 export async function deleteFollow(feed: Feed, user: User) {
     
-    await db.delete(feed_follows).where(and(eq(feed.id,feed_follows.feed_id),eq(user.id,feed_follows.user_id))).returning();
+    await db.delete(feed_follows).where(and(eq(feed_follows.feed_id,feed.id),eq(feed_follows.user_id,user.id))).returning();
 };
 
 export async function markFeedFetched(feed: Feed) {
-    await db.update(feeds).set({last_fetched_at: sql`NOW()`, updatedAt: sql`NOW()`}).where(eq(feed.id,feeds.id));
+    await db.update(feeds).set({last_fetched_at: new Date()}).where(eq(feeds.id,feed.id));
 };
 
 export async function getNextFeedToFetch() {
-    const [feed] = await db.execute(sql`SELECT * FROM ${feeds} ORDER BY ${feeds.last_fetched_at} ASC NULLS FIRST LIMIT 1`);
-    //const [row] = await db.select().from(feeds).orderBy(asc(feeds.last_fetched_at), sql`NULLS FIRST`);
+    const [feed] = await db.select().from(feeds).orderBy(sql`${feeds.last_fetched_at} asc nulls first`).limit(1);
     return feed;
 };
 
 export async function scrapeFeeds() {
-    const feed : Feed = await getNextFeedToFetch();
+    const feed = await getNextFeedToFetch();
     await markFeedFetched(feed);
     const fetchedFeed = await fetchFeed(feed.url);
+    console.log(`Feed: ${feed.name}, collected ${fetchedFeed.channel.item.length} posts found`)
+    
     for(let item of fetchedFeed.channel.item){
+        await createPost(item, feed);
         //console.log(`${item.title}`);
-        const testFeed = await getFeed(item.link);
+        /*const testFeed = await getFeed(item.link);
         if(testFeed){
             await createPost(item, feed);
-        }
+        }*/
         
     }
 };
