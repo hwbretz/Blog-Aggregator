@@ -17,3 +17,5 @@ Blog Aggregator
 	* listFeedFollows (gets feeds followed)
 	* unfollow [FeedURL] (unfollows feed)
 	* browse [optional:integer] (returns newest feeds limited to 2 unless otherwise specified)
+
+- OR use npm run start tui for a user interface, but still start npm run agg [duration integer ms, s, m, or h] in a separate window first

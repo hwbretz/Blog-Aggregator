@@ -91,21 +91,48 @@ export async function getNextFeedToFetch() {
     return feed;
 };
 
+export async function getNextFeedsToFetch(limit: number = 10)  {
+    const feed = await db.select().from(feeds).orderBy(sql`${feeds.last_fetched_at} asc nulls first`).limit(limit);
+
+    return feed;
+};
+
 export async function scrapeFeeds() {
+    const feeds = await getNextFeedsToFetch();
+    await Promise.allSettled(feeds.map(async (feed)=> {
+
+        await markFeedFetched(feed);
+        const fetchedFeed = await fetchFeed(feed.url);
+        console.log(`Feed: ${feed.name}, collected ${fetchedFeed.channel.item.length} posts found`)
+        
+        const promises = fetchedFeed.channel.item.map(item => 
+            createPost(item, feed)
+        );
+        await Promise.allSettled(promises);
+        
+    }));
+};
+
+export async function scrapeFeed() {
     const feed = await getNextFeedToFetch();
     await markFeedFetched(feed);
     const fetchedFeed = await fetchFeed(feed.url);
     console.log(`Feed: ${feed.name}, collected ${fetchedFeed.channel.item.length} posts found`)
     
+    const promises = fetchedFeed.channel.item.map(item => 
+        createPost(item, feed)
+    );
+    await Promise.allSettled(promises);
+    /*
     for(let item of fetchedFeed.channel.item){
         await createPost(item, feed);
         //console.log(`${item.title}`);
         /*const testFeed = await getFeed(item.link);
         if(testFeed){
             await createPost(item, feed);
-        }*/
+        }
         
-    }
+    }*/
 };
 
 export async function createPost(post: RSSItem, feed: Feed) {
